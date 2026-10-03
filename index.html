@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIGHT SHOW - Clean Player</title>
+    <title>NIGHT SHOW - Clean Player with Auto UPI</title>
+    
+    <!-- LIBRARIES FOR PAYMENT & PDF -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
+        /* CORE STYLES */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -14,20 +22,10 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 🎨 CUSTOM SCROLLBAR STYLING */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0b0b0d;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ff9000;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #e07f00;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0b0d; }
+        ::-webkit-scrollbar-thumb { background: #ff9000; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e07f00; }
 
         body {
             background-color: #0b0b0d;
@@ -37,6 +35,7 @@
             flex-direction: column;
         }
 
+        /* HEADER & NAVIGATION */
         header {
             background-color: #121215;
             border-bottom: 1px solid #22222a;
@@ -45,943 +44,119 @@
             top: 0;
             z-index: 100;
         }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: #ff9000;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-            border-radius: 8px;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .icon-btn:hover {
-            background-color: #22222b;
-            color: #ffffff;
-        }
-
-        .icon-btn svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            text-decoration: none;
-            cursor: pointer;
-            user-select: none;
-            text-transform: uppercase;
-        }
-
-        .logo-pocket {
-            color: #ffffff;
-            margin-right: 4px;
-        }
-
-        .logo-story {
-            background-color: #ff9000;
-            color: #000000;
-            padding: 2px 8px;
-            border-radius: 5px;
-            font-weight: 900;
-        }
-
-        /* 🪙 ATTRACTIVE 3D GOLD DOLLAR COIN WALLET BADGE */
-        .coin-wallet {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, rgba(255, 204, 0, 0.18) 0%, rgba(255, 144, 0, 0.28) 100%);
-            border: 1px solid rgba(255, 215, 0, 0.6);
-            padding: 4px 10px 4px 8px;
-            border-radius: 30px;
-            font-weight: 900;
-            font-size: 15px;
-            color: #ffdc33;
-            cursor: pointer;
-            box-shadow: 0 0 6px rgba(255, 180, 0, 0.15), inset 0 0 5px rgba(255, 215, 0, 0.1);
-            backdrop-filter: blur(8px);
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .coin-wallet:hover {
-            transform: translateY(-2px) scale(1.05);
-            border-color: #ffe600;
-            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3), inset 0 0 6px rgba(255, 230, 0, 0.15);
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 144, 0, 0.45) 100%);
-        }
-
-        .coin-wallet:active {
-            transform: scale(0.96);
-        }
-
-        .coin-svg {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-            filter: drop-shadow(0 2px 3px rgba(255, 180, 0, 0.3));
-            animation: coinPulse 3s infinite ease-in-out;
-        }
-
-        @keyframes coinPulse {
-            0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 2px 3px rgba(255, 180, 0, 0.3)); }
-            50% { transform: scale(1.1) rotate(4deg); filter: drop-shadow(0 2px 5px rgba(255, 215, 0, 0.4)); }
-        }
-
-        #userCoins {
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-            font-size: 15px;
-        }
-
-        .add-coin-btn {
-            background: linear-gradient(135deg, #ffcc00, #ff9000);
-            color: #000;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 900;
-            box-shadow: 0 2px 6px rgba(255, 144, 0, 0.7);
-            margin-left: 2px;
-            transition: transform 0.25s ease;
-        }
-
-        .coin-wallet:hover .add-coin-btn {
-            transform: rotate(90deg) scale(1.1);
-        }
-
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            margin-top: 10px;
-            background-color: #18181f;
-            border: 1px solid #2a2a36;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            width: 160px;
-            z-index: 200;
-            overflow: hidden;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 10px 14px;
-            color: #d1d1d6;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .dropdown-item:hover {
-            background-color: #ff9000;
-            color: #000000;
-        }
-
-        .search-bar-box {
-            display: none;
-            max-width: 1200px;
-            margin: 10px auto 0;
-            position: relative;
-        }
-
-        .search-bar-box.show {
-            display: block;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px 16px;
-            background-color: #1a1a22;
-            border: 1px solid #2e2e3d;
-            border-radius: 20px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search-input:focus {
-            border-color: #ff9000;
-        }
-
-        .drawer-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(4px);
-            z-index: 300;
-        }
-
-        .drawer-overlay.show {
-            display: block;
-        }
-
-        .drawer-content {
-            width: 270px;
-            height: 100%;
-            background-color: #121215;
-            border-right: 1px solid #22222a;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #22222a;
-        }
-
-        .drawer-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #e1e1e6;
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 14px;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .drawer-link:hover, .drawer-link.active {
-            background-color: #22222b;
-            color: #ff9000;
-        }
-
-        main {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px 16px;
-            flex: 1;
-        }
-
-        .hero-banner {
-            background: linear-gradient(135deg, #1a1a22 0%, #101015 100%);
-            border: 1px solid #282836;
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 24px;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background-color: rgba(255, 144, 0, 0.15);
-            color: #ff9000;
-            border: 1px solid rgba(255, 144, 0, 0.3);
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .hero-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-        .hero-desc {
-            color: #9a9ab0;
-            font-size: 13px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .video-count {
-            background-color: #1e1e26;
-            color: #ff9000;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 12px;
-            border: 1px solid #2e2e3a;
-        }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 18px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        .skeleton-card {
-            background-color: #15151a;
-            border: 1px solid #242430;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .skeleton-thumb {
-            width: 100%;
-            padding-top: 56.25%;
-            background: linear-gradient(90deg, #1a1a22 25%, #282836 50%, #1a1a22 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-        }
-
-        .skeleton-body {
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .skeleton-line {
-            height: 14px;
-            background: linear-gradient(90deg, #1c1c24 25%, #2a2a38 50%, #1c1c24 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-            border-radius: 4px;
-        }
-
-        .skeleton-line.short {
-            width: 50%;
-            height: 10px;
-        }
-
-        .video-card {
-            background-color: #15151a;
-            border: 1px solid #242430;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .video-card:hover {
-            transform: translateY(-3px);
-            border-color: #ff9000;
-            box-shadow: 0 8px 20px rgba(255, 144, 0, 0.2);
-        }
-
-        .thumb-box {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            background-color: #1a1a22;
-            overflow: hidden;
-        }
-
-        .thumb-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity 0.3s ease;
-        }
-
-        .play-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .play-circle {
-            width: 44px;
-            height: 44px;
-            background-color: #ff9000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(255, 144, 0, 0.4);
-        }
-
-        .play-circle svg {
-            width: 18px;
-            height: 18px;
-            fill: #000;
-            margin-left: 2px;
-        }
-
-        .badge-hd {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            color: #ccc;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .card-body {
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex: 1;
-            background-color: #15151a;
-        }
-
-        .video-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #eee;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 8px;
-            word-break: break-word;
-        }
-
-        .card-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #7a7a8c;
-        }
-
-        .play-text {
-            color: #ff9000;
-            font-weight: 600;
-        }
-
-        .status-box {
-            text-align: center;
-            padding: 60px 20px;
-            color: #8a8a9a;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0,0,0,0.85);
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal-container {
-            width: 100vw;
-            height: 100vh;
-            background: #000000;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .player-box {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background-color: #000000;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .player-box iframe {
-            position: absolute;
-            top: -60px;
-            left: 0;
-            width: 100%;
-            height: calc(100% + 140px);
-            border: none;
-        }
-
-        .custom-control-bar {
-            position: absolute;
-            top: 25px; 
-            right: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(18, 18, 22, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 5px 8px 5px 12px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            z-index: 9999;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-
-        .fullscreen-btn {
-            background: #ff9000;
-            color: #000000;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .fullscreen-btn:active {
-            transform: scale(0.96);
-        }
-
-        .fullscreen-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: #000000;
-        }
-
-        .close-btn {
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        footer {
-            border-top: 1px solid #1e1e26;
-            padding: 16px;
-            text-align: center;
-            font-size: 12px;
-            color: #5a5a6a;
-            margin-top: auto;
-        }
-
-        .cost-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background-color: rgba(0, 0, 0, 0.85);
-            border: 1px solid #ffcc00;
-            color: #ffcc00;
-            font-size: 12px;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .lock-icon svg {
-             fill: #fff;
-             margin-left: 0;
-        }
-
-        .info-modal-card {
-            background-color: #141419;
-            border: 1px solid #282836;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 420px;
-            padding: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            animation: popIn 0.25s ease-out;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .info-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #22222a;
-        }
-
-        .info-modal-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box-item {
-            background-color: #1c1c24;
-            border: 1px solid #2e2e3d;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .info-box-label {
-            font-size: 11px;
-            color: #ff9000;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .info-box-val {
-            font-size: 14px;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .support-action-btn {
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            background-color: #25d366;
-            color: #000;
-            font-weight: 800;
-            padding: 12px;
-            border-radius: 25px;
-            text-decoration: none;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .profile-avatar-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .profile-avatar {
-            width: 75px;
-            height: 75px;
-            background: linear-gradient(135deg, #ff9000, #ffcc00);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 900;
-            color: #000;
-            box-shadow: 0 6px 16px rgba(255, 144, 0, 0.3);
-            margin-bottom: 10px;
-            border: 3px solid #141419;
-        }
-
-        .profile-name {
-            font-size: 18px;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .profile-id {
-            font-size: 12px;
-            color: #8a8a9a;
-            font-weight: 600;
-            margin-top: 2px;
-        }
-
-        .profile-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background-color: #1c1c24;
-            border: 1px solid #2e2e3d;
-            border-radius: 12px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .stat-val {
-            font-size: 20px;
-            font-weight: 900;
-            color: #ff9000;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #9a9ab0;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        .profile-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .profile-action-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 25px;
-            border: none;
-            font-weight: 800;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: opacity 0.2s;
-        }
-
-        .profile-action-btn.primary {
-            background-color: #ff9000;
-            color: #000;
-        }
-
-        .profile-action-btn.secondary {
-            background-color: #22222b;
-            color: #fff;
-            border: 1px solid #2e2e3d;
-        }
-
-        .package-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .package-card {
-            background-color: #1c1c24;
-            border: 1px solid #2e2e3d;
-            border-radius: 12px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .package-card:hover {
-            border-color: #ff9000;
-            background-color: #242430;
-            transform: translateY(-2px);
-        }
-
-        .package-card.special {
-            border-color: #00e676;
-            background: linear-gradient(135deg, #1c2b22 0%, #1c1c24 100%);
-        }
-
-        .package-card.popular {
-            border-color: #ff9000;
-            background: linear-gradient(135deg, #24221c 0%, #1c1c24 100%);
-        }
-
-        .package-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background-color: #ff9000;
-            color: #000;
-            font-size: 9px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-bottom-left-radius: 8px;
-            text-transform: uppercase;
-        }
-
-        .package-badge.green {
-            background-color: #00e676;
-        }
-
-        .package-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .package-coins {
-            font-size: 16px;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .package-sub {
-            font-size: 11px;
-            color: #9a9ab0;
-            font-weight: 600;
-        }
-
-        .package-btn {
-            background-color: #ff9000;
-            color: #000;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .package-btn.green-btn {
-            background-color: #00e676;
-            color: #000;
-        }
-
-        #toastContainer {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-            max-width: 90vw;
-        }
-
-        .toast {
-            pointer-events: auto;
-            background-color: #1a1a22;
-            color: #ffffff;
-            border-left: 4px solid #ff9000;
-            border-radius: 8px;
-            padding: 12px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transition: all 0.3s ease;
-        }
-
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .nav-group { display: flex; align-items: center; gap: 10px; }
+        .icon-btn { background: none; border: none; color: #ff9000; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 8px; transition: background 0.2s, color 0.2s; }
+        .icon-btn:hover { background-color: #22222b; color: #ffffff; }
+        .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .logo { display: flex; align-items: center; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; cursor: pointer; text-transform: uppercase; }
+        .logo-pocket { color: #ffffff; margin-right: 4px; }
+        .logo-story { background-color: #ff9000; color: #000000; padding: 2px 8px; border-radius: 5px; font-weight: 900; }
+
+        /* WALLET */
+        .coin-wallet { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, rgba(255, 204, 0, 0.18) 0%, rgba(255, 144, 0, 0.28) 100%); border: 1px solid rgba(255, 215, 0, 0.6); padding: 4px 10px 4px 8px; border-radius: 30px; font-weight: 900; font-size: 15px; color: #ffdc33; cursor: pointer; box-shadow: 0 0 6px rgba(255, 180, 0, 0.15), inset 0 0 5px rgba(255, 215, 0, 0.1); backdrop-filter: blur(8px); transition: all 0.25s ease; }
+        .coin-wallet:hover { transform: translateY(-2px) scale(1.05); border-color: #ffe600; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3), inset 0 0 6px rgba(255, 230, 0, 0.15); }
+        .coin-svg { width: 24px; height: 24px; animation: coinPulse 3s infinite ease-in-out; }
+        @keyframes coinPulse { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(4deg); } }
+        #userCoins { font-size: 15px; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
+        .add-coin-btn { background: linear-gradient(135deg, #ffcc00, #ff9000); color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-left: 2px; }
+
+        /* DROPDOWNS & SEARCH */
+        .dropdown { position: relative; }
+        .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; margin-top: 10px; background-color: #18181f; border: 1px solid #2a2a36; border-radius: 10px; width: 200px; z-index: 200; max-height: 320px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item { display: block; padding: 10px 14px; color: #d1d1d6; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .dropdown-item:hover { background-color: #ff9000; color: #000000; }
+        .search-bar-box { display: none; max-width: 1200px; margin: 10px auto 0; position: relative; }
+        .search-bar-box.show { display: block; }
+        .search-input { width: 100%; padding: 10px 16px; background-color: #1a1a22; border: 1px solid #2e2e3d; border-radius: 20px; color: #fff; font-size: 14px; outline: none; }
+        
+        /* DRAWER */
+        .drawer-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 300; }
+        .drawer-overlay.show { display: block; }
+        .drawer-content { width: 270px; height: 100%; background-color: #121215; border-right: 1px solid #22222a; padding: 20px; display: flex; flex-direction: column; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #22222a; }
+        .drawer-link { display: flex; align-items: center; gap: 12px; color: #e1e1e6; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        .drawer-link:hover, .drawer-link.active { background-color: #22222b; color: #ff9000; }
+
+        /* MAIN CONTENT */
+        main { max-width: 1200px; width: 100%; margin: 0 auto; padding: 20px 16px; flex: 1; }
+        .hero-banner { background: linear-gradient(135deg, #1a1a22 0%, #101015 100%); border: 1px solid #282836; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; }
+        .hero-badge { display: inline-block; background-color: rgba(255, 144, 0, 0.15); color: #ff9000; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; }
+        .hero-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+        .hero-desc { color: #9a9ab0; font-size: 13px; }
+        
+        .section-header { display: flex; justify-content: space-between; margin-bottom: 18px; }
+        .section-title { font-size: 18px; font-weight: 700; }
+        .video-count { background-color: #1e1e26; color: #ff9000; font-size: 12px; padding: 3px 10px; border-radius: 12px; border: 1px solid #2e2e3a; }
+
+        /* GRID & CARDS */
+        .video-grid { display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 600px; margin: 0 auto; }
+        @media (min-width: 640px) { .video-grid { grid-template-columns: 1fr 1fr; max-width: none; } }
+        @media (min-width: 1024px) { .video-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .video-card { background-color: #15151a; border: 1px solid #242430; border-radius: 12px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .video-card:hover { transform: translateY(-3px); border-color: #ff9000; }
+        .thumb-box { position: relative; width: 100%; padding-top: 56.25%; background-color: #1a1a22; }
+        .thumb-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .play-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; }
+        .play-circle { width: 44px; height: 44px; background-color: #ff9000; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .play-circle svg { width: 18px; height: 18px; fill: #000; }
+        .card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+        .video-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: #7a7a8c; }
+        .cost-badge { position: absolute; top: 8px; left: 8px; background-color: rgba(0,0,0,0.85); border: 1px solid #ffcc00; color: #ffcc00; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 12px; z-index: 10; }
+        .badge-hd { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #ccc; }
+
+        /* MODALS */
+        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.85); z-index: 999; align-items: center; justify-content: center; padding: 16px; opacity: 0; transition: opacity 0.25s ease; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .info-modal-card { background-color: #141419; border: 1px solid #282836; border-radius: 16px; width: 100%; max-width: 420px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; position: relative; }
+        .info-modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #22222a; font-size: 18px; font-weight: 800; }
+        .close-btn { background: transparent; border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* PLAYER STYLES */
+        .modal-container { width: 100vw; height: 100vh; background: #000; position: relative; display: flex; flex-direction: column; }
+        .player-box { position: relative; flex: 1; width: 100%; overflow: hidden; }
+        .player-box iframe { position: absolute; top: -60px; left: 0; width: 100%; height: calc(100% + 140px); border: none; }
+        .custom-control-bar { position: absolute; top: 25px; right: 14px; display: flex; gap: 6px; background: rgba(18,18,22,0.85); padding: 5px 12px; border-radius: 30px; z-index: 9999; }
+        .fullscreen-btn { background: #ff9000; border: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+        /* PACKAGES & BUTTONS */
+        .package-list { display: flex; flex-direction: column; gap: 12px; }
+        .package-card { background-color: #1c1c24; border: 1px solid #2e2e3d; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; position: relative; overflow: hidden; }
+        .package-card:hover { border-color: #ff9000; background-color: #242430; }
+        .package-card.special { border-color: #00e676; background: linear-gradient(135deg, #1c2b22 0%, #1c1c24 100%); }
+        .package-card.popular { border-color: #ff9000; background: linear-gradient(135deg, #24221c 0%, #1c1c24 100%); }
+        .package-badge { position: absolute; top: 0; right: 0; background-color: #ff9000; color: #000; font-size: 9px; padding: 2px 8px; border-bottom-left-radius: 8px; font-weight: 800; text-transform: uppercase; }
+        .package-badge.green { background-color: #00e676; }
+        .package-btn { background-color: #ff9000; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        .package-btn.green-btn { background-color: #00e676; }
+        
+        .profile-action-btn { width: 100%; padding: 12px; border-radius: 25px; border: none; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .profile-action-btn.primary { background-color: #ff9000; color: #000; }
+        .profile-action-btn.secondary { background-color: #22222b; color: #fff; border: 1px solid #2e2e3d; }
+
+        /* CHECKOUT PAYMENT UI STYLES */
+        .checkout-box { text-align: center; }
+        .checkout-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #00e676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.3); border-top-left-radius: 16px; border-top-right-radius: 16px;}
+        .timer-badge { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; padding: 8px 16px; border-radius: 30px; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 15px; border: 1px solid rgba(255, 77, 77, 0.2); }
+        .qr-wrapper { margin: 1.5rem 0; display: flex; justify-content: center; position: relative; }
+        #qrcode { background: #ffffff !important; padding: 15px; border-radius: 16px; display: inline-block; box-shadow: 0 0 25px rgba(255,255,255,0.1); }
+        .bill { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 1.2rem; margin: 1.5rem 0; text-align: left; border: 1px solid #1f2937; }
+        .bill .row { display: flex; justify-content: space-between; margin-bottom: 12px; color: #8b9bb4; font-size: 0.95rem; }
+        .bill .total { color: #00e676; font-weight: 700; font-size: 1.2rem; border-top: 1px dashed #334155; padding-top: 12px; margin-top: 12px; }
+        .status-pulse { font-weight: 500; color: #8b9bb4; margin-top: 1.5rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .pulse-dot { width: 8px; height: 8px; background: #00e676; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,230,118,0.3); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); } 100% { transform: scale(0.95); } }
+
+        /* TOAST */
+        #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { pointer-events: auto; background-color: #1a1a22; color: #fff; border-left: 4px solid #ff9000; border-radius: 8px; padding: 12px 18px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s; }
         .toast.success { border-left-color: #00e676; }
         .toast.error { border-left-color: #ff4d4d; }
-        .toast.warning { border-left-color: #ffcc00; }
-
-        @keyframes toastIn {
-            from { transform: translateY(100%) scale(0.9); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        .unlock-card {
-            text-align: center;
-        }
-        .unlock-icon-wrap {
-            width: 54px;
-            height: 54px;
-            background: rgba(255, 144, 0, 0.15);
-            border: 1px solid #ff9000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 14px;
-        }
-        .unlock-icon-wrap svg {
-            width: 26px;
-            height: 26px;
-            fill: #ff9000;
-        }
-        .unlock-dialog-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        @keyframes toastIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -989,19 +164,15 @@
     <header>
         <div class="header-container">
             <div class="nav-group">
-                <button onclick="toggleDrawer()" class="icon-btn" title="Menu">
+                <button onclick="toggleDrawer()" class="icon-btn">
                     <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                 </button>
-
                 <div class="dropdown">
-                    <button onclick="toggleDropdown()" class="icon-btn" title="Categories">
+                    <button onclick="toggleDropdown()" class="icon-btn">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                         <svg viewBox="0 0 24 24" style="width:14px; height:14px; margin-left:2px;"><path d="M7 10l5 5 5-5z"/></svg>
                     </button>
-                    <div id="filterDropdown" class="dropdown-menu">
-                        <a href="#" onclick="filterCategory('All')" class="dropdown-item">All Stories</a>
-                        <a href="#" onclick="filterCategory('Trending')" class="dropdown-item">Trending</a>
-                    </div>
+                    <div id="filterDropdown" class="dropdown-menu"></div>
                 </div>
             </div>
 
@@ -1011,72 +182,34 @@
             </div>
 
             <div class="nav-group">
-                <!-- 🪙 SHINY 3D GOLD DOLLAR COIN WALLET BADGE -->
-                <div class="coin-wallet" id="coinWalletDisplay" onclick="openCoinModal()" title="Click to Add Coins">
+                <div class="coin-wallet" onclick="openCoinModal()">
                     <svg viewBox="0 0 100 100" class="coin-svg">
-                        <defs>
-                            <linearGradient id="goldOuterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#FFF3B0"/>
-                                <stop offset="25%" stop-color="#FFD700"/>
-                                <stop offset="65%" stop-color="#CC8800"/>
-                                <stop offset="100%" stop-color="#7A4D00"/>
-                            </linearGradient>
-                            <radialGradient id="goldInnerGrad" cx="35%" cy="30%" r="70%">
-                                <stop offset="0%" stop-color="#FFFAD6"/>
-                                <stop offset="25%" stop-color="#FFDC40"/>
-                                <stop offset="60%" stop-color="#E69900"/>
-                                <stop offset="100%" stop-color="#804A00"/>
-                            </radialGradient>
-                            <linearGradient id="dollarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#FFFFFF"/>
-                                <stop offset="25%" stop-color="#FFF1B8"/>
-                                <stop offset="75%" stop-color="#DA9C00"/>
-                                <stop offset="100%" stop-color="#7A4B00"/>
-                            </linearGradient>
-                            <filter id="symbolShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="1" dy="2" stdDeviation="1" flood-color="#000" flood-opacity="0.6"/>
-                            </filter>
-                        </defs>
-                        <!-- Outer Golden Rim -->
-                        <circle cx="50" cy="50" r="48" fill="url(#goldOuterGrad)"/>
-                        <!-- Inner Bevel Circle -->
-                        <circle cx="50" cy="50" r="42" fill="url(#goldInnerGrad)" stroke="#FFE899" stroke-width="1.5" stroke-opacity="0.8"/>
-                        <!-- Inner Ring Line -->
-                        <circle cx="50" cy="50" r="37" fill="none" stroke="#804A00" stroke-width="1" opacity="0.4"/>
-                        <!-- 3D Dollar Symbol ($) -->
-                        <text x="50" y="67" font-family="-apple-system, BlinkMacSystemFont, Arial, sans-serif" font-size="52" font-weight="900" fill="url(#dollarGrad)" text-anchor="middle" filter="url(#symbolShadow)" style="letter-spacing:-2px;">$</text>
+                        <circle cx="50" cy="50" r="48" fill="#FFD700"/>
+                        <circle cx="50" cy="50" r="42" fill="#E69900" stroke="#FFE899" stroke-width="1.5"/>
+                        <text x="50" y="67" font-family="Arial" font-size="52" font-weight="900" fill="#fff" text-anchor="middle">$</text>
                     </svg>
-                    <span id="userCoins">6</span>
+                    <span id="userCoins">0</span>
                     <span class="add-coin-btn">+</span>
                 </div>
-
-                <button onclick="toggleSearch()" class="icon-btn" title="Search">
+                <button onclick="toggleSearch()" class="icon-btn">
                     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 </button>
             </div>
         </div>
-
         <div id="searchBarBox" class="search-bar-box">
-            <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search NIGHT SHOW videos..." class="search-input">
+            <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search videos..." class="search-input">
         </div>
     </header>
 
     <div id="drawerOverlay" class="drawer-overlay" onclick="toggleDrawer()">
         <div class="drawer-content" onclick="event.stopPropagation()">
             <div class="drawer-header">
-                <div class="logo">
-                    <span class="logo-pocket">NIGHT</span>
-                    <span class="logo-story">SHOW</span>
-                </div>
+                <div class="logo"><span class="logo-pocket">NIGHT</span><span class="logo-story">SHOW</span></div>
                 <button onclick="toggleDrawer()" class="close-btn">✕</button>
             </div>
-            
             <a href="#" onclick="switchTab('home'); toggleDrawer();" id="nav-home" class="drawer-link active">🏠 Home</a>
-            <a href="#" onclick="openProfileModal(); toggleDrawer();" id="nav-profile" class="drawer-link">👤 My Profile</a>
             <a href="#" onclick="switchTab('history'); toggleDrawer();" id="nav-history" class="drawer-link">📜 Watch History</a>
             <a href="#" onclick="openCoinModal(); toggleDrawer();" class="drawer-link" style="color:#ffcc00;">🪙 Buy Coins</a>
-            <a href="#" onclick="openSupportModal(); toggleDrawer();" class="drawer-link">🎧 Customer Support</a>
-            <a href="#" onclick="openAboutModal(); toggleDrawer();" class="drawer-link">ℹ️ About Us</a>
         </div>
     </div>
 
@@ -1091,585 +224,412 @@
             <h2 class="section-title" id="sectionHeading">Recent Uploads</h2>
             <span id="videoCountBadge" class="video-count" style="display:none;">0 Videos</span>
         </div>
-
-        <div id="statusBox" class="status-box" style="display:none;">
-            <p id="statusText">Loading video library...</p>
-        </div>
-
+        <div id="statusBox" style="text-align:center; padding:40px; color:#aaa; display:none;">Loading...</div>
         <div id="videoGrid" class="video-grid"></div>
     </main>
 
-    <!-- 🎬 PLAYER MODAL -->
+    <!-- VIDEO PLAYER MODAL -->
     <div id="playerModal" class="modal-overlay" onclick="closePlayer()">
         <div class="modal-container" id="modalContainer" onclick="event.stopPropagation()">
             <div class="custom-control-bar">
-                <button onclick="toggleRotation()" class="fullscreen-btn">
-                    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    <span>Full Screen</span>
-                </button>
-                <button onclick="closePlayer()" class="close-btn" title="Close">✕</button>
+                <button onclick="toggleRotation()" class="fullscreen-btn">Full Screen</button>
+                <button onclick="closePlayer()" class="close-btn" style="background:#ff9000; color:#000;">✕</button>
             </div>
-
             <div class="player-box" id="playerBox"></div>
         </div>
     </div>
 
-    <!-- 🔒 CUSTOM UNLOCK MODAL -->
+    <!-- UNLOCK VIDEO MODAL -->
     <div id="unlockModal" class="modal-overlay" onclick="closeUnlockModal()">
-        <div class="info-modal-card unlock-card" onclick="event.stopPropagation()">
-            <div class="unlock-icon-wrap">
-                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
-            </div>
-            <h3 style="font-size:18px; color:#fff; margin-bottom:8px;">Unlock Video Story</h3>
-            <p id="unlockVideoTitle" style="font-size:13px; color:#ff9000; font-weight:600; margin-bottom:12px;"></p>
-            <p style="font-size:13px; color:#9a9ab0;">Unlock this video for <strong style="color:#ffcc00;">2 Coins</strong>?</p>
-            
-            <div class="unlock-dialog-actions">
+        <div class="info-modal-card" style="text-align:center;" onclick="event.stopPropagation()">
+            <h3 style="color:#fff; margin-bottom:8px;">Unlock Video Story</h3>
+            <p id="unlockVideoTitle" style="color:#ff9000; font-size:14px; margin-bottom:12px;"></p>
+            <p style="color:#aaa; font-size:13px;">Unlock this video for <strong style="color:#ffcc00;">2 Coins</strong>?</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
                 <button onclick="closeUnlockModal()" class="profile-action-btn secondary">Cancel</button>
-                <button id="confirmUnlockBtn" class="profile-action-btn primary">Unlock Now (2 Coins)</button>
+                <button id="confirmUnlockBtn" class="profile-action-btn primary">Unlock Now</button>
             </div>
         </div>
     </div>
 
-    <!-- PROFILE MODAL -->
-    <div id="profileModal" class="modal-overlay" onclick="closeProfileModal()">
-        <div class="info-modal-card" onclick="event.stopPropagation()">
-            <div class="info-modal-header">
-                <div class="info-modal-title">👤 User Profile</div>
-                <button onclick="closeProfileModal()" class="close-btn">✕</button>
-            </div>
-
-            <div class="profile-avatar-box">
-                <div class="profile-avatar">P</div>
-                <div class="profile-name">NIGHT SHOW Listener</div>
-                <div class="profile-id">ID: #NS-884920</div>
-            </div>
-
-            <div class="profile-stats-grid">
-                <div class="stat-box">
-                    <div class="stat-val" id="profileCoinCount">6</div>
-                    <div class="stat-label">Coins Balance</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="profileUnlockedCount">0</div>
-                    <div class="stat-label">Unlocked Videos</div>
-                </div>
-            </div>
-
-            <div class="profile-btn-group">
-                <button onclick="closeProfileModal(); openCoinModal();" class="profile-action-btn primary">
-                    🪙 Recharge Coins
-                </button>
-                <button onclick="closeProfileModal(); switchTab('history');" class="profile-action-btn secondary">
-                    📜 View Watch History
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- COIN RECHARGE MODAL -->
+    <!-- COIN STORE MODAL -->
     <div id="coinModal" class="modal-overlay" onclick="closeCoinModal()">
         <div class="info-modal-card" onclick="event.stopPropagation()">
             <div class="info-modal-header">
-                <div class="info-modal-title">
-                    <svg viewBox="0 0 100 100" class="coin-svg" style="width:22px; height:22px;">
-                        <circle cx="50" cy="50" r="48" fill="url(#goldOuterGrad)"/>
-                        <circle cx="50" cy="50" r="42" fill="url(#goldInnerGrad)" stroke="#FFE899" stroke-width="1.5"/>
-                        <text x="50" y="67" font-family="Arial, sans-serif" font-size="52" font-weight="900" fill="url(#dollarGrad)" text-anchor="middle" filter="url(#symbolShadow)" style="letter-spacing:-2px;">$</text>
-                    </svg>
-                    Recharge Coins
-                </div>
+                <div>🪙 Recharge Coins</div>
                 <button onclick="closeCoinModal()" class="close-btn">✕</button>
             </div>
             <p style="font-size:13px; color:#9a9ab0; margin-bottom:16px;">Select a pack to purchase coins:</p>
-            
+
             <div class="package-list">
-                <div class="package-card special" onclick="addCoins(10, '₹19 First Offer Pack')">
+                <div class="package-card special" onclick="initiatePayment(10, 19, '₹19 First Offer Pack')">
                     <span class="package-badge green">First Offer</span>
-                    <div class="package-left">
-                        <div>
-                            <div class="package-coins">10 Coins</div>
-                            <div class="package-sub">First Time Starter Pack</div>
-                        </div>
+                    <div>
+                        <div style="font-weight:800; font-size:16px; color:#fff;">10 Coins</div>
+                        <div style="font-size:11px; color:#9a9ab0;">First Time Starter Pack</div>
                     </div>
                     <button class="package-btn green-btn">₹19</button>
                 </div>
 
-                <div class="package-card" onclick="addCoins(25, '₹49 Pack')">
-                    <div class="package-left">
-                        <div>
-                            <div class="package-coins">25 Coins</div>
-                            <div class="package-sub">Basic Recharge</div>
-                        </div>
+                <div class="package-card" onclick="initiatePayment(25, 49, '₹49 Pack')">
+                    <div>
+                        <div style="font-weight:800; font-size:16px; color:#fff;">25 Coins</div>
+                        <div style="font-size:11px; color:#9a9ab0;">Basic Recharge</div>
                     </div>
                     <button class="package-btn">₹49</button>
                 </div>
 
-                <div class="package-card" onclick="addCoins(50, '₹99 Pack')">
-                    <div class="package-left">
-                        <div>
-                            <div class="package-coins">50 Coins</div>
-                            <div class="package-sub">Standard Recharge</div>
-                        </div>
+                <div class="package-card" onclick="initiatePayment(50, 99, '₹99 Pack')">
+                    <div>
+                        <div style="font-weight:800; font-size:16px; color:#fff;">50 Coins</div>
+                        <div style="font-size:11px; color:#9a9ab0;">Standard Recharge</div>
                     </div>
                     <button class="package-btn">₹99</button>
                 </div>
 
-                <div class="package-card" onclick="addCoins(75, '₹149 Pack')">
-                    <div class="package-left">
-                        <div>
-                            <div class="package-coins">75 Coins</div>
-                            <div class="package-sub">Super Saver Pack</div>
-                        </div>
-                    </div>
-                    <button class="package-btn">₹149</button>
-                </div>
-
-                <div class="package-card popular" onclick="addCoins(100, '₹199 Pack')">
+                <!-- TEST PACK UPDATED TO RS 1 -->
+                <div class="package-card popular" onclick="initiatePayment(100, 1, '₹1 Test Pack')">
                     <span class="package-badge">Best Value</span>
-                    <div class="package-left">
-                        <div>
-                            <div class="package-coins">100 Coins</div>
-                            <div class="package-sub">Mega Value Pack</div>
-                        </div>
+                    <div>
+                        <div style="font-weight:800; font-size:16px; color:#fff;">100 Coins</div>
+                        <div style="font-size:11px; color:#9a9ab0;">Mega Value Pack (Test)</div>
                     </div>
-                    <button class="package-btn">₹199</button>
+                    <button class="package-btn">₹1</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CUSTOMER SUPPORT MODAL -->
-    <div id="supportModal" class="modal-overlay" onclick="closeSupportModal()">
-        <div class="info-modal-card" onclick="event.stopPropagation()">
-            <div class="info-modal-header">
-                <div class="info-modal-title">🎧 Customer Support</div>
-                <button onclick="closeSupportModal()" class="close-btn">✕</button>
+    <!-- SECURE CHECKOUT (FIREBASE UPI) MODAL -->
+    <div id="checkoutModal" class="modal-overlay" onclick="closeCheckoutModal()">
+        <div class="info-modal-card checkout-box" onclick="event.stopPropagation()">
+            <div class="info-modal-header" style="justify-content:center; border:none; margin-bottom:5px;">
+                Secure UPI Checkout
             </div>
+            <p style="color:#8b9bb4; font-size:13px; margin-bottom:15px;" id="checkoutPackName">Recharging Coins</p>
 
-            <div class="info-box-item">
-                <span class="info-box-label">Email Support</span>
-                <span class="info-box-val">support@nightshow.com</span>
+            <div class="timer-badge">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>
+                <span id="timerDisplay">02:00</span>
             </div>
-
-            <div class="info-box-item">
-                <span class="info-box-label">Support Hours</span>
-                <span class="info-box-val">Monday - Saturday (10:00 AM - 7:00 PM)</span>
+            
+            <div class="qr-wrapper"> 
+                <div id="qrcode"></div> 
             </div>
-
-            <div class="info-box-item">
-                <span class="info-box-label">Response Time</span>
-                <span class="info-box-val">Within 24 Hours</span>
+            
+            <div class="bill">
+                <div class="row"><span>Package Amount</span> <span id="displayBase">₹0.00</span></div>
+                <div class="row"><span>Tracking Fee</span> <span id="displayFee">₹0.00</span></div>
+                <div class="row total"><span>Total Payable</span> <span id="displayTotal">₹0.00</span></div>
             </div>
+            
+            <button class="profile-action-btn secondary" onclick="downloadQR()">📥 Download QR Code</button>
+            <button class="profile-action-btn secondary" style="margin-top:5px; background:transparent;" onclick="closeCheckoutModal()">Cancel Payment</button>
 
-            <a href="https://wa.me/919876543210" target="_blank" class="support-action-btn">💬 Chat on WhatsApp</a>
-        </div>
-    </div>
-
-    <!-- ABOUT MODAL -->
-    <div id="aboutModal" class="modal-overlay" onclick="closeAboutModal()">
-        <div class="info-modal-card" onclick="event.stopPropagation()">
-            <div class="info-modal-header">
-                <div class="info-modal-title">ℹ About NIGHT SHOW</div>
-                <button onclick="closeAboutModal()" class="close-btn">✕</button>
-            </div>
-
-            <p style="font-size:13px; color:#c0c0d0; line-height:1.6; margin-bottom:14px;">
-                <strong>NIGHT SHOW</strong> is a premier digital entertainment platform delivering high-definition video series and short stories right at your fingertips.
-            </p>
-
-            <div class="info-box-item">
-                <span class="info-box-label">Platform Version</span>
-                <span class="info-box-val">v2.7 (Shiny Gold Dollar Edition)</span>
-            </div>
-
-            <div class="info-box-item">
-                <span class="info-box-label">Features</span>
-                <span class="info-box-val">3D Gold Coin Wallet, Instant Streaming, Watch History</span>
+            <div id="checkoutStatus" class="status-pulse">
+                <div class="pulse-dot"></div>
+                Listening for successful payment...
             </div>
         </div>
     </div>
 
     <div id="toastContainer"></div>
 
-    <footer>
-        © 2026 NIGHT SHOW. All rights reserved.
-    </footer>
-
     <script>
+        /* ========================================================
+           ⚙️ CONFIG & FIREBASE 
+           ======================================================== */
         const CONFIG = {
             API_KEY: "AIzaSyBxRvzxcBpdnFvKYRLg994RDB0Oek0M5aE",
-            FOLDER_ID_OR_LINK: "https://drive.google.com/drive/folders/1L8f_DFeEfQs4sHyNVNu95VctFAI4q5QS"
+            FOLDERS: [
+                { name: "FULL HD", link: "https://drive.google.com/drive/folders/1L8f_DFeEfQs4sHyNVNu95VctFAI4q5QS" },
+                { name: "VIRAIL MMS", link: "https://drive.google.com/drive/folders/17GGfelNrx8iLD40-ycL7BL1h7psPUtvV" }
+            ]
         };
 
-        let allVideos = [];
-        let currentTab = 'home';
-        let pendingUnlockVideo = null;
-        
-        let userWallet = {
-            coins: 6,
-            unlockedVideos: [] 
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiw0E2cCG6N07EW0z8-0B1dkZ7wV8im7M",
+            authDomain: "upi-payment-3c187.firebaseapp.com",
+            databaseURL: "https://upi-payment-3c187-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "upi-payment-3c187",
+            storageBucket: "upi-payment-3c187.firebasestorage.app",
+            messagingSenderId: "375351749338",
+            appId: "1:375351749338:web:334c13a62fc621be8b13e3",
+            measurementId: "G-HE6TQ9DCEJ"
         };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
+        let currentUpiId = "Q070261555@ybl"; 
+        database.ref("settings/upiId").on("value", (snap) => {
+            if(snap.exists()) currentUpiId = snap.val();
+        });
+
+        /* ========================================================
+           STATE MANAGEMENT
+           ======================================================== */
+        let allVideos = [], currentTab = 'home', pendingUnlockVideo = null, activeFilterIndex = -1, searchQuery = '';
+        let userWallet = { coins: 6, unlockedVideos: [] };
         const VIDEO_COST = 2;
 
-        function saveWallet() {
-            try {
-                localStorage.setItem('ps_userWallet', JSON.stringify(userWallet));
-            } catch (e) {}
-        }
+        let paymentTimer = null, backendTimer = null;
+        let currentPaymentRefKey = null;
 
-        function loadWallet() {
-            try {
-                const saved = localStorage.getItem('ps_userWallet');
-                if (saved) {
-                    userWallet = JSON.parse(saved);
-                }
-            } catch (e) {}
-        }
+        function saveWallet() { try { localStorage.setItem('ps_userWallet', JSON.stringify(userWallet)); } catch (e) {} }
+        function loadWallet() { try { const saved = localStorage.getItem('ps_userWallet'); if (saved) userWallet = JSON.parse(saved); } catch (e) {} }
+        function updateWalletDisplay() { document.getElementById('userCoins').innerText = userWallet.coins; saveWallet(); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWallet(); updateWalletDisplay(); fetchVideos();
+        });
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '✅';
-            if (type === 'error') icon = '❌';
-            if (type === 'warning') icon = '⚠️';
-
-            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            toast.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span> <span>${message}</span>`;
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        function updateWalletDisplay() {
-            document.getElementById('userCoins').innerText = userWallet.coins;
-            saveWallet();
-        }
-
-        function openProfileModal() {
-            document.getElementById('profileCoinCount').innerText = userWallet.coins;
-            document.getElementById('profileUnlockedCount').innerText = userWallet.unlockedVideos.length;
-            document.getElementById('profileModal').classList.add('show');
-        }
-        function closeProfileModal() { document.getElementById('profileModal').classList.remove('show'); }
-
-        function openCoinModal() { document.getElementById('coinModal').classList.add('show'); }
-        function closeCoinModal() { document.getElementById('coinModal').classList.remove('show'); }
-
-        function openSupportModal() { document.getElementById('supportModal').classList.add('show'); }
-        function closeSupportModal() { document.getElementById('supportModal').classList.remove('show'); }
-
-        function openAboutModal() { document.getElementById('aboutModal').classList.add('show'); }
-        function closeAboutModal() { document.getElementById('aboutModal').classList.remove('show'); }
-
-        function addCoins(amount, packName) {
-            userWallet.coins += amount;
-            updateWalletDisplay();
-            closeCoinModal();
-            showToast(`${amount} Coins added successfully! (${packName})`, 'success');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadWallet();
-            updateWalletDisplay();
-            fetchVideos();
-        });
-
+        /* ========================================================
+           UI TOGGLES
+           ======================================================== */
         function toggleDrawer() { document.getElementById('drawerOverlay').classList.toggle('show'); }
         function toggleDropdown() { document.getElementById('filterDropdown').classList.toggle('show'); }
-        function toggleSearch() {
-            const box = document.getElementById('searchBarBox');
-            box.classList.toggle('show');
-            if (box.classList.contains('show')) document.getElementById('searchInput').focus();
-        }
+        function toggleSearch() { document.getElementById('searchBarBox').classList.toggle('show'); }
+        function openCoinModal() { document.getElementById('coinModal').classList.add('show'); }
+        function closeCoinModal() { document.getElementById('coinModal').classList.remove('show'); }
 
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('nav-home').classList.remove('active');
             document.getElementById('nav-history').classList.remove('active');
-
             if (tab === 'home') {
                 document.getElementById('nav-home').classList.add('active');
                 document.getElementById('pageTitle').innerText = "Watch Video Stories Online";
-                document.getElementById('pageSubTitle').innerText = "Videos cost 2 coins to unlock. Click on any video card to stream instantly.";
                 document.getElementById('sectionHeading').innerText = "Recent Uploads";
-                renderGrid(allVideos);
-            } else if (tab === 'history') {
+            } else {
                 document.getElementById('nav-history').classList.add('active');
                 document.getElementById('pageTitle').innerText = "My Watch History";
-                document.getElementById('pageSubTitle').innerText = "Videos that you have already unlocked & watched.";
                 document.getElementById('sectionHeading').innerText = "Unlocked Videos";
-                
-                const historyVideos = allVideos.filter(v => userWallet.unlockedVideos.includes(v.id));
-                renderGrid(historyVideos);
             }
+            applyFilters();
         }
 
-        function getCleanFolderId(input) {
-            if (!input) return '';
-            const match = input.match(/folders\/([a-zA-Z0-9_-]+)/);
-            return match ? match[1] : input.trim();
-        }
-
-        function showSkeletons() {
-            const grid = document.getElementById('videoGrid');
-            grid.innerHTML = '';
-            for (let i = 0; i < 4; i++) {
-                grid.innerHTML += `
-                    <div class="skeleton-card">
-                        <div class="skeleton-thumb"></div>
-                        <div class="skeleton-body">
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line short"></div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
+        /* ========================================================
+           GOOGLE DRIVE FETCH & RENDER
+           ======================================================== */
         async function fetchVideos() {
-            const statusBox = document.getElementById('statusBox');
-            const statusText = document.getElementById('statusText');
-            const badge = document.getElementById('videoCountBadge');
-
-            showSkeletons();
-
-            const folderId = getCleanFolderId(CONFIG.FOLDER_ID_OR_LINK);
-
+            const stat = document.getElementById('statusBox'); stat.style.display = 'block'; stat.innerText = 'Fetching...';
             try {
-                const query = encodeURIComponent(`'${folderId}' in parents and mimeType contains 'video/' and trashed = false`);
-                const fields = encodeURIComponent('files(id, name, mimeType, thumbnailLink)');
-                const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&key=${CONFIG.API_KEY}&pageSize=100`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.error) throw new Error(data.error.message || 'Drive API Error');
-
-                allVideos = data.files || [];
-
-                if (allVideos.length === 0) {
-                    statusBox.style.display = 'block';
-                    statusText.innerText = "Is folder me koi video file nahi mili.";
-                    document.getElementById('videoGrid').innerHTML = '';
-                    return;
+                let merged = [];
+                for(let i=0; i<CONFIG.FOLDERS.length; i++) {
+                    let f = CONFIG.FOLDERS[i];
+                    let id = (f.link.match(/folders\/([a-zA-Z0-9_-]+)/) || [])[1] || f.link;
+                    let url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'video/'+and+trashed=false&fields=files(id,name,thumbnailLink,createdTime)&key=${CONFIG.API_KEY}&pageSize=100`;
+                    let r = await fetch(url); let d = await r.json();
+                    if(d.files) merged = merged.concat(d.files.map(v => ({...v, folderIndex: i, folderName: f.name})));
                 }
+                const seen = new Set(); allVideos = merged.filter(v => { if(seen.has(v.id)) return false; seen.add(v.id); return true; });
+                allVideos.sort((a,b) => (b.createdTime ? new Date(b.createdTime) : 0) - (a.createdTime ? new Date(a.createdTime) : 0));
+                
+                let html = `<a href="#" onclick="filterCategory(-1); return false;" class="dropdown-item">ALL VIDEOS</a>`;
+                CONFIG.FOLDERS.forEach((f, i) => html += `<a href="#" onclick="filterCategory(${i}); return false;" class="dropdown-item">${f.name}</a>`);
+                document.getElementById('filterDropdown').innerHTML = html;
+                applyFilters();
+            } catch(e) { stat.innerText = 'Error loading videos: ' + e.message; }
+        }
 
-                badge.innerText = `${allVideos.length} Videos`;
-                badge.style.display = 'inline-block';
+        function filterCategory(idx) { activeFilterIndex = idx; document.getElementById('filterDropdown').classList.remove('show'); applyFilters(); }
+        function handleSearch() { searchQuery = document.getElementById('searchInput').value.toLowerCase(); applyFilters(); }
 
-                switchTab('home');
-
-            } catch (err) {
-                statusBox.style.display = 'block';
-                statusText.innerHTML = `<span style="color:#ff4d4d; font-weight:bold;">Error: ${err.message}</span>`;
-                showToast(`Failed to load videos: ${err.message}`, 'error');
-            }
+        function applyFilters() {
+            let list = currentTab === 'history' ? allVideos.filter(v => userWallet.unlockedVideos.includes(v.id)) : allVideos;
+            if(activeFilterIndex > -1) list = list.filter(v => v.folderIndex === activeFilterIndex);
+            if(searchQuery) list = list.filter(v => v.name.toLowerCase().includes(searchQuery));
+            renderGrid(list);
         }
 
         function renderGrid(videos) {
-            const grid = document.getElementById('videoGrid');
-            const statusBox = document.getElementById('statusBox');
-            const statusText = document.getElementById('statusText');
-
+            const grid = document.getElementById('videoGrid'), stat = document.getElementById('statusBox'), bge = document.getElementById('videoCountBadge');
             grid.innerHTML = '';
+            if(!videos.length) { stat.style.display = 'block'; stat.innerText = 'No videos found.'; bge.style.display='none'; return; }
+            stat.style.display = 'none'; bge.style.display = 'inline-block'; bge.innerText = videos.length + ' Videos';
 
-            if (videos.length === 0) {
-                statusBox.style.display = 'block';
-                if (currentTab === 'history') {
-                    statusText.innerText = "Aapne abhi tak koi video unlock nahi kiya hai.";
-                } else {
-                    statusText.innerText = "Koi video nahi mila.";
-                }
-                return;
-            } else {
-                statusBox.style.display = 'none';
-            }
-
-            const coinIconHTML = `<svg viewBox="0 0 100 100" style="width:14px; height:14px; vertical-align:middle;"><circle cx="50" cy="50" r="48" fill="url(#goldOuterGrad)"/><circle cx="50" cy="50" r="42" fill="url(#goldInnerGrad)" stroke="#FFE899" stroke-width="1.5"/><text x="50" y="67" font-family="Arial, sans-serif" font-size="52" font-weight="900" fill="url(#dollarGrad)" text-anchor="middle" style="letter-spacing:-2px;">$</text></svg>`;
-
-            videos.forEach(video => {
-                let thumb = `https://lh3.googleusercontent.com/d/${video.id}=w600`;
-                const cleanName = decodeURIComponent(video.name);
+            videos.forEach(v => {
+                const unl = userWallet.unlockedVideos.includes(v.id);
+                const thumb = `https://lh3.googleusercontent.com/d/${v.id}=w600`;
+                let name = v.name; try { name = decodeURIComponent(v.name); } catch(e){}
                 
-                const isUnlocked = userWallet.unlockedVideos.includes(video.id);
-
-                const iconSVG = isUnlocked 
-                    ? '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
-                    : '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>';
-
-                const playCircleClass = isUnlocked ? 'play-circle' : 'play-circle lock-icon';
-                const actionText = isUnlocked ? 'Watch Now ▶' : `Unlock (${VIDEO_COST} Coins) 🔒`;
-
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                card.onclick = () => handleVideoClick(video.id, cleanName);
-
+                let card = document.createElement('div'); card.className = 'video-card';
+                card.onclick = () => {
+                    if(unl) openPlayer(v.id);
+                    else {
+                        if(userWallet.coins >= VIDEO_COST) {
+                            pendingUnlockVideo = { id: v.id, title: name };
+                            document.getElementById('unlockVideoTitle').innerText = name;
+                            document.getElementById('unlockModal').classList.add('show');
+                        } else { showToast('Not enough coins! Please recharge.', 'error'); openCoinModal(); }
+                    }
+                };
                 card.innerHTML = `
                     <div class="thumb-box">
-                        ${!isUnlocked ? `<div class="cost-badge">${coinIconHTML}${VIDEO_COST}</div>` : ''}
-                        <img src="${thumb}" 
-                             alt="" 
-                             class="thumb-img" 
-                             loading="lazy" 
-                             referrerpolicy="no-referrer"
-                             onerror="this.src='${video.thumbnailLink || ''}'">
-                        <div class="play-overlay">
-                            <div class="${playCircleClass}">
-                                ${iconSVG}
-                            </div>
-                        </div>
-                        <span class="badge-hd">HD</span>
+                        ${!unl ? `<div class="cost-badge">🪙 ${VIDEO_COST}</div>` : ''}
+                        <img src="${thumb}" class="thumb-img" loading="lazy" onerror="this.src='${v.thumbnailLink||''}'">
+                        <div class="play-overlay"><div class="play-circle">${unl ? '▶' : '🔒'}</div></div>
                     </div>
                     <div class="card-body">
-                        <div class="video-title">${cleanName}</div>
-                        <div class="card-meta">
-                            <span>NIGHT SHOW</span>
-                            <span class="play-text" style="${!isUnlocked ? 'color: #aaa;' : ''}">${actionText}</span>
-                        </div>
+                        <div class="video-title">${name}</div>
+                        <div class="card-meta"><span>${v.folderName||'Folder'}</span><span style="color:#ff9000;font-weight:bold">${unl?'Watch Now':'Unlock'}</span></div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function handleVideoClick(id, title) {
-            if (userWallet.unlockedVideos.includes(id)) {
-                openPlayer(id, title);
-            } else {
-                if (userWallet.coins >= VIDEO_COST) {
-                    openUnlockModal(id, title);
-                } else {
-                    showToast(`Bas ${userWallet.coins} coins bache hain. ${VIDEO_COST} coins chahiye!`, 'warning');
-                    openCoinModal();
-                }
+        /* ========================================================
+           UNLOCK & PLAYBACK
+           ======================================================== */
+        document.getElementById('confirmUnlockBtn').onclick = () => {
+            if(pendingUnlockVideo && userWallet.coins >= VIDEO_COST) {
+                userWallet.coins -= VIDEO_COST; userWallet.unlockedVideos.push(pendingUnlockVideo.id);
+                updateWalletDisplay(); closeUnlockModal(); showToast('Video Unlocked!', 'success');
+                applyFilters(); openPlayer(pendingUnlockVideo.id);
             }
+        };
+        function closeUnlockModal() { document.getElementById('unlockModal').classList.remove('show'); pendingUnlockVideo = null; }
+
+        function openPlayer(id) {
+            document.getElementById('playerBox').innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen allow="autoplay"></iframe>`;
+            document.getElementById('playerModal').classList.add('show');
         }
-
-        function openUnlockModal(id, title) {
-            pendingUnlockVideo = { id, title };
-            document.getElementById('unlockVideoTitle').innerText = title;
-            document.getElementById('unlockModal').classList.add('show');
-            document.getElementById('confirmUnlockBtn').onclick = confirmUnlock;
-        }
-
-        function closeUnlockModal() {
-            document.getElementById('unlockModal').classList.remove('show');
-            pendingUnlockVideo = null;
-        }
-
-        function confirmUnlock() {
-            if (!pendingUnlockVideo) return;
-            const { id, title } = pendingUnlockVideo;
-
-            userWallet.coins -= VIDEO_COST;
-            userWallet.unlockedVideos.push(id);
-            updateWalletDisplay();
-            
-            closeUnlockModal();
-            showToast(`"${title}" unlocked successfully!`, 'success');
-            renderGrid(currentTab === 'history' ? allVideos.filter(v => userWallet.unlockedVideos.includes(v.id)) : allVideos);
-            openPlayer(id, title);
-        }
-
-        function handleSearch() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const source = currentTab === 'history' ? allVideos.filter(v => userWallet.unlockedVideos.includes(v.id)) : allVideos;
-            const filtered = source.filter(v => v.name.toLowerCase().includes(q));
-            renderGrid(filtered);
-        }
-
-        function filterCategory(cat) {
-            document.getElementById('filterDropdown').classList.remove('show');
-            const source = currentTab === 'history' ? allVideos.filter(v => userWallet.unlockedVideos.includes(v.id)) : allVideos;
-            if (cat === 'All') {
-                renderGrid(source);
-            } else {
-                const filtered = source.filter(v => v.name.toLowerCase().includes(cat.toLowerCase()));
-                renderGrid(filtered);
-            }
-        }
-
-        function openPlayer(id, title) {
-            const playerBox = document.getElementById('playerBox');
-
-            playerBox.innerHTML = `
-                <iframe id="videoIframe"
-                        src="https://drive.google.com/file/d/${id}/preview" 
-                        allow="autoplay; encrypted-media; picture-in-picture; fullscreen" 
-                        allowfullscreen>
-                </iframe>
-            `;
-
-            const modal = document.getElementById('playerModal');
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
+        function closePlayer() { document.getElementById('playerBox').innerHTML=''; document.getElementById('playerModal').classList.remove('show'); }
         async function toggleRotation() {
-            const modal = document.getElementById('playerModal');
+            let m = document.getElementById('playerModal');
+            if(!document.fullscreenElement) { if(m.requestFullscreen) m.requestFullscreen(); if(screen.orientation) screen.orientation.lock('landscape').catch(()=>{}); }
+            else { if(document.exitFullscreen) document.exitFullscreen(); if(screen.orientation) screen.orientation.unlock(); }
+        }
 
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (modal.requestFullscreen) {
-                    await modal.requestFullscreen().catch(() => {});
-                } else if (modal.webkitRequestFullscreen) {
-                    await modal.webkitRequestFullscreen();
-                }
+        /* ========================================================
+           FIREBASE PAYMENT INTEGRATION
+           ======================================================== */
+        function initiatePayment(coins, basePrice, packName) {
+            closeCoinModal();
+            document.getElementById('checkoutPackName').innerText = packName + ` (${coins} Coins)`;
+            document.getElementById('checkoutModal').classList.add('show');
+            
+            // Clean up previous sessions
+            if(paymentTimer) clearInterval(paymentTimer);
+            if(backendTimer) clearTimeout(backendTimer);
+            if(currentPaymentRefKey) database.ref("payments/" + currentPaymentRefKey).off();
 
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(() => {});
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    await document.exitFullscreen().catch(() => {});
-                } else if (document.webkitExitFullscreen) {
-                    await document.webkitExitFullscreen();
-                }
+            let fee = parseFloat(((Math.random() * 0.98) + 0.01).toFixed(2)); // Random fee 0.01 to 0.99
+            let total = (basePrice + fee).toFixed(2);
+            let autoUserId = 'USER-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-                if (screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
+            document.getElementById("displayBase").innerText = `₹${basePrice.toFixed(2)}`;
+            document.getElementById("displayFee").innerText = `₹${fee.toFixed(2)}`;
+            document.getElementById("displayTotal").innerText = `₹${total}`;
+
+            // Push to Firebase
+            let ref = database.ref("payments").push();
+            currentPaymentRefKey = ref.key;
+
+            ref.set({
+                amount: total,
+                status: "Pending",
+                userId: autoUserId,
+                coinsToGive: coins,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Generate QR
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: `upi://pay?pa=${currentUpiId}&am=${total}`,
+                width: 180, height: 180, colorDark : "#000000", colorLight : "#ffffff"
+            });
+
+            // Timers
+            let time = 120;
+            document.getElementById('checkoutStatus').innerHTML = '<div class="pulse-dot"></div> Listening for successful payment...';
+            document.getElementById('checkoutStatus').style.color = "#8b9bb4";
+            document.getElementById("qrcode").style.opacity = "1";
+
+            paymentTimer = setInterval(() => {
+                time--;
+                let m = Math.floor(time / 60), s = time % 60;
+                document.getElementById("timerDisplay").innerText = "0" + m + ":" + String(s).padStart(2, '0');
+                if (time <= 0) { 
+                    clearInterval(paymentTimer); 
+                    document.getElementById('checkoutStatus').innerText = "QR Expired. Close and try again.";
+                    document.getElementById('checkoutStatus').style.color = "#ff4d4d";
+                    document.getElementById("qrcode").style.opacity = "0.2";
                 }
+            }, 1000);
+
+            backendTimer = setTimeout(() => { database.ref("payments/" + ref.key).remove(); }, 125000);
+
+            // Listener for 'Paid'
+            ref.on("value", (snap) => {
+                const data = snap.val();
+                if (data && data.status === "Paid") {
+                    clearInterval(paymentTimer); clearTimeout(backendTimer);
+                    ref.off(); // stop listening
+                    
+                    database.ref("history/" + ref.key).set({ ...data, completedAt: firebase.database.ServerValue.TIMESTAMP });
+                    database.ref("payments/" + ref.key).remove();
+
+                    // ADD COINS TO APP WALLET
+                    userWallet.coins += parseInt(data.coinsToGive);
+                    updateWalletDisplay();
+                    
+                    closeCheckoutModal();
+                    showToast(`Payment Successful! Added ${data.coinsToGive} Coins.`, 'success');
+                    
+                    // Generate PDF Receipt
+                    setTimeout(() => downloadPDFReceipt(data.amount, ref.key, data.userId), 500);
+                }
+            });
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.remove('show');
+            if(paymentTimer) clearInterval(paymentTimer);
+            if(backendTimer) clearTimeout(backendTimer);
+            if(currentPaymentRefKey) {
+                database.ref("payments/" + currentPaymentRefKey).off();
+                database.ref("payments/" + currentPaymentRefKey).remove(); // Cleanup pending from DB
             }
         }
 
-        function closePlayer() {
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().catch(() => {});
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
-
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
-
-            const playerBox = document.getElementById('playerBox');
-            playerBox.innerHTML = '';
-
-            const modal = document.getElementById('playerModal');
-            modal.classList.remove('show');
-            document.body.style.overflow = 'auto';
+        function downloadQR() {
+            let qrCanvas = document.querySelector("#qrcode canvas"), qrImg = document.querySelector("#qrcode img");
+            let source = qrCanvas || qrImg; if(!source) return;
+            let padding = 25, width = source.width || 180, height = source.height || 180;
+            let finalCanvas = document.createElement("canvas");
+            finalCanvas.width = width + (padding * 2); finalCanvas.height = height + (padding * 2);
+            let ctx = finalCanvas.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            if(qrCanvas) ctx.drawImage(qrCanvas, padding, padding); else if(qrImg) ctx.drawImage(qrImg, padding, padding, width, height);
+            let a = document.createElement("a"); a.href = finalCanvas.toDataURL("image/png"); a.download = "NIGHTSHOW_UPI.png";
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closePlayer();
-                closeCoinModal();
-                closeSupportModal();
-                closeAboutModal();
-                closeProfileModal();
-                closeUnlockModal();
-            }
-        });
+        function downloadPDFReceipt(totalAmount, transactionId, userId) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.setTextColor(255, 144, 0); doc.setFontSize(22); doc.setFont(undefined, 'bold'); doc.text("NIGHT SHOW RECEIPT", 105, 30, { align: "center" });
+            doc.setTextColor(100, 100, 100); doc.setFontSize(12); doc.setFont(undefined, 'normal'); doc.text("Thank you for recharging your wallet", 105, 40, { align: "center" });
+            doc.setDrawColor(220, 220, 220); doc.line(20, 50, 190, 50);
+            const now = new Date(), startY = 70, gap = 15; doc.setFontSize(14); doc.setTextColor(50, 50, 50);
+            doc.setFont(undefined, 'bold'); doc.text("Status:", 20, startY); doc.setTextColor(0, 230, 118); doc.text("SUCCESS", 190, startY, { align: "right" });
+            doc.setTextColor(50, 50, 50);
+            doc.text("Amount Paid:", 20, startY + gap); doc.text("Rs. " + totalAmount, 190, startY + gap, { align: "right" });
+            doc.text("Transaction ID:", 20, startY + (gap * 2)); doc.text(transactionId.substring(0, 20), 190, startY + (gap * 2), { align: "right" });
+            doc.text("User ID:", 20, startY + (gap * 3)); doc.text(userId, 190, startY + (gap * 3), { align: "right" });
+            doc.text("Date & Time:", 20, startY + (gap * 4)); doc.text(now.toLocaleString(), 190, startY + (gap * 4), { align: "right" });
+            doc.save("NightShow_Receipt.pdf");
+        }
     </script>
 </body>
 </html>
