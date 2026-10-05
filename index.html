@@ -191,8 +191,8 @@
 
     <main>
         <div class="hero-banner">
-            <span class="hero-badge">NIGHT SHOW Portal</span>
-            <h1 class="hero-title" id="pageTitle">Watch Video Stories Online</h1>
+            <span class="hero-badge">NIGHT SHOW PORTAL</span>
+            <h1 class="hero-title" id="pageTitle">Watch Video Online</h1>
             <p class="hero-desc" id="pageSubTitle">Videos cost 2 coins to unlock.</p>
         </div>
 
@@ -637,24 +637,93 @@
                         <div style="background:#1a1a22;border-radius:10px;padding:15px;margin-bottom:20px;border:1px solid #2e2e3d;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid #22222a;padding-bottom:8px;"><span style="color:#8b9bb4;font-size:13px;">Email</span><span style="font-weight:600;font-size:13px;word-break:break-all;">${user.email}</span></div>
                         <div style="display:flex;justify-content:space-between;"><span style="color:#8b9bb4;font-size:13px;">User ID</span><span style="font-weight:600;font-size:12px;">${user.uid.substring(0,16)}...</span></div></div>
-                        <button onclick="handleAuth();" class="profile-action-btn" style="background:#ff4d4d;color:#fff;">🚪 Logout</button>`;
+                        <button onclick="handleAuth();" class="profile-action-btn" style="background:#ff4d4d;color:#fff;"> Logout</button>`;
                 } else body = '<p>Please login.</p>';
+                
+                document.getElementById('infoModalTitle').innerText = title;
+                document.getElementById('infoModalBody').innerHTML = body;
+                document.getElementById('infoModal').classList.add('show');
+                
             } else if (type === 'refer') {
                 title = '🎁 Refer & Earn';
                 const user = auth.currentUser;
-                if (user) {
-                    const refLink = window.location.origin + window.location.pathname + '?ref=' + user.uid;
-                    body = `<p style="margin-bottom:10px;">Share & earn <strong style="color:#00e676;">50% of their purchase</strong>!</p>
-                        <div style="background:#1a1a22;border-radius:10px;padding:12px;margin:15px 0;border:1px solid #2e2e3d;word-break:break-all;font-size:12px;color:#ff9000;">${refLink}</div>
-                        <button onclick="copyReferralLink('${refLink}')" class="profile-action-btn primary">📋 Copy Link</button>`;
-                } else body = '<p>Login to get link.</p>';
+                if (!user) {
+                    body = '<p style="text-align:center;color:#8b9bb4;">Please login to get your referral link.</p>';
+                    document.getElementById('infoModalTitle').innerText = title;
+                    document.getElementById('infoModalBody').innerHTML = body;
+                    document.getElementById('infoModal').classList.add('show');
+                    return;
+                }
+                
+                const refLink = window.location.origin + window.location.pathname + '?ref=' + user.uid;
+                
+                document.getElementById('infoModalTitle').innerText = title;
+                document.getElementById('infoModalBody').innerHTML = '<div style="text-align:center;padding:30px;"><div class="pulse-dot" style="display:inline-block;width:12px;height:12px;background:#ff9000;border-radius:50%;animation:pulse 1.5s infinite;"></div></div>';
+                document.getElementById('infoModal').classList.add('show');
+                
+                database.ref('settings/packages').once('value').then(snap => {
+                    let packs = snap.val();
+                    if (!packs) {
+                        packs = [
+                            { coins: 10, price: 19, name: 'Starter' },
+                            { coins: 25, price: 49, name: 'Basic' },
+                            { coins: 50, price: 99, name: 'Standard' },
+                            { coins: 100, price: 1, name: 'Mega Value' }
+                        ];
+                    }
+                    
+                    const earningsRows = packs.map(p => {
+                        const yourBonus = Math.floor(p.coins * 0.5);
+                        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0b0b0d;border:1px solid #2e2e3d;border-radius:10px;margin-bottom:8px;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🪙</span>
+                                <div>
+                                    <div style="font-weight:700;font-size:13px;color:#fff;">Friend buys ${p.coins} coins</div>
+                                    <div style="font-size:11px;color:#8b9bb4;">for ₹${p.price}</div>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="color:#00e676;font-weight:900;font-size:16px;">+${yourBonus}</div>
+                                <div style="font-size:9px;color:#8b9bb4;text-transform:uppercase;letter-spacing:1px;">YOU EARN</div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                    
+                    body = `
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <div style="font-size:44px;margin-bottom:6px;">🎁</div>
+                            <h3 style="font-size:16px;margin-bottom:4px;">Share & Earn <span style="color:#00e676;">50% Bonus</span></h3>
+                            <p style="font-size:12px;color:#8b9bb4;">Har purchase par aapko aadhe coins milenge</p>
+                        </div>
+                        
+                        <div style="background:#1a1a22;border-radius:10px;padding:12px;margin-bottom:15px;border:1px solid #2e2e3d;">
+                            <p style="font-size:11px;color:#8b9bb4;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">🔗 Your Referral Link</p>
+                            <div style="word-break:break-all;font-size:11px;color:#ff9000;font-family:monospace;background:#0b0b0d;padding:10px;border-radius:8px;border:1px solid #22222a;">${refLink}</div>
+                            <button onclick="copyReferralLink('${refLink}')" class="profile-action-btn primary" style="margin-top:10px;">📋 Copy Link</button>
+                        </div>
+                        
+                        <p style="font-size:12px;color:#8b9bb4;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">💰 Aap Kitna Kamayenge?</p>
+                        
+                        <div style="max-height:280px;overflow-y:auto;margin-bottom:10px;">${earningsRows}</div>
+                        
+                        <div style="background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.25);border-radius:10px;padding:12px;text-align:center;">
+                            <p style="font-size:11px;color:#00e676;font-weight:600;">💡 Bonus aapke wallet me instantly add hoga jab friend payment karega</p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('infoModalBody').innerHTML = body;
+                }).catch(err => {
+                    document.getElementById('infoModalBody').innerHTML = '<p style="text-align:center;color:#ff4d4d;">Error loading: ' + err.message + '</p>';
+                });
+                
             } else if (type === 'about') {
                 title = 'ℹ️ About Us';
                 body = `<p>NIGHT SHOW is a premium video streaming platform.</p><p style="margin-top:10px;">Version: 2.0.0</p>`;
+                
+                document.getElementById('infoModalTitle').innerText = title;
+                document.getElementById('infoModalBody').innerHTML = body;
+                document.getElementById('infoModal').classList.add('show');
             }
-            document.getElementById('infoModalTitle').innerText = title;
-            document.getElementById('infoModalBody').innerHTML = body;
-            document.getElementById('infoModal').classList.add('show');
         }
 
         function copyReferralLink(link) {
