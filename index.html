@@ -841,6 +841,7 @@
 
         // ============================================================
         // ============ ATTRACTIVE PDF RECEIPT (FINAL) ===============
+        // NIGHT = White text, SHOW = Orange text (no box)
         // ============================================================
         function downloadPDFReceipt(totalAmount, transactionId, userId) {
             const { jsPDF } = window.jspdf;
@@ -848,7 +849,7 @@
             const pageW = doc.internal.pageSize.getWidth();
             const pageH = doc.internal.pageSize.getHeight();
             
-            // ---- DARK BACKGROUND ----
+            // DARK BACKGROUND
             doc.setFillColor(12, 10, 8);
             doc.rect(0, 0, pageW, pageH, 'F');
             
@@ -866,10 +867,10 @@
             doc.setFillColor(22, 17, 12);
             doc.circle(pageW / 2, 55, 35, 'F');
             
-            // ============ LOGO: NIGHT (white) + SHOW (orange) ============
+            // ============ LOGO: NIGHT (white) + SHOW (orange text, no box) ============
             const nightText = "NIGHT";
             const showText = "SHOW";
-            const fontSize = 26;
+            const fontSize = 28;
             const gap = 8;
             
             doc.setFont("helvetica", "bold");
@@ -879,27 +880,27 @@
             const showWidth = doc.getTextWidth(showText);
             const totalLogoW = nightWidth + gap + showWidth;
             const logoStartX = (pageW - totalLogoW) / 2;
-            const logoY = 36;
+            const textBaselineY = 40;
             
-            // "NIGHT" white
+            // "NIGHT" - WHITE text
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
-            doc.text(nightText, logoStartX, logoY);
+            doc.text(nightText, logoStartX, textBaselineY);
             
-            // "SHOW" orange
+            // "SHOW" - ORANGE text (no box)
             doc.setTextColor(255, 144, 0);
             doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
-            doc.text(showText, logoStartX + nightWidth + gap, logoY);
+            doc.text(showText, logoStartX + nightWidth + gap, textBaselineY);
             
             // Tagline
             doc.setTextColor(160, 160, 160);
             doc.setFontSize(7.5);
             doc.setFont("helvetica", "normal");
-            doc.text("P  A  Y  M  E  N  T     R  E  C  E  I  P  T", pageW / 2, 50, { align: "center" });
+            doc.text("P  A  Y  M  E  N  T     R  E  C  E  I  P  T", pageW / 2, 52, { align: "center" });
             
-            // ---- SUCCESS CHECKMARK ----
+            // Success checkmark
             const successY = 68;
             doc.setFillColor(0, 200, 100);
             doc.circle(pageW / 2, successY, 10, 'F');
@@ -914,7 +915,7 @@
             doc.setFont("helvetica", "bold");
             doc.text("PAYMENT SUCCESSFUL", pageW / 2, successY + 20, { align: "center" });
             
-            // ---- MAIN BORDER BOX ----
+            // Main border box
             const boxX = 15;
             const boxY = 100;
             const boxW = pageW - 30;
@@ -992,7 +993,7 @@
                 yPos += rowH;
             });
             
-            // ---- FOOTER ----
+            // Footer
             doc.setDrawColor(255, 144, 0);
             doc.setLineWidth(0.5);
             doc.line(20, pageH - 40, pageW - 20, pageH - 40);
