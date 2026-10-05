@@ -840,7 +840,7 @@
         }
 
         // ============================================================
-        // ====== ATTRACTIVE PDF RECEIPT (REFERENCE IMAGE MATCH) =====
+        // ============ ATTRACTIVE PDF RECEIPT (FINAL) ===============
         // ============================================================
         function downloadPDFReceipt(totalAmount, transactionId, userId) {
             const { jsPDF } = window.jspdf;
@@ -866,43 +866,32 @@
             doc.setFillColor(22, 17, 12);
             doc.circle(pageW / 2, 55, 35, 'F');
             
-            // ============ LOGO (Perfectly Matching Reference) ============
+            // ============ LOGO: NIGHT (white) + SHOW (orange) ============
             const nightText = "NIGHT";
             const showText = "SHOW";
             const fontSize = 26;
-            const boxPadX = 9;    // Horizontal padding inside orange box (snug)
-            const boxPadY = 3;    // Vertical padding
-            const gap = 6;        // Gap between NIGHT and SHOW
+            const gap = 8;
             
             doc.setFont("helvetica", "bold");
             doc.setFontSize(fontSize);
             
             const nightWidth = doc.getTextWidth(nightText);
-            const showTextWidth = doc.getTextWidth(showText);
-            const showBoxW = showTextWidth + (boxPadX * 2);
-            const showBoxH = fontSize + (boxPadY * 2) + 2;
-            
-            const totalLogoW = nightWidth + gap + showBoxW;
+            const showWidth = doc.getTextWidth(showText);
+            const totalLogoW = nightWidth + gap + showWidth;
             const logoStartX = (pageW - totalLogoW) / 2;
-            const textBaselineY = 36;
-            const showBoxY = textBaselineY - showBoxH + 7;
+            const logoY = 36;
             
-            // Draw "NIGHT" (white)
+            // "NIGHT" white
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
-            doc.text(nightText, logoStartX, textBaselineY);
+            doc.text(nightText, logoStartX, logoY);
             
-            // Draw "SHOW" orange box
-            const showBoxX = logoStartX + nightWidth + gap;
-            doc.setFillColor(255, 144, 0);
-            doc.roundedRect(showBoxX, showBoxY, showBoxW, showBoxH, 5, 5, 'F');
-            
-            // Draw "SHOW" text (black) centered in box
-            doc.setTextColor(0, 0, 0);
+            // "SHOW" orange
+            doc.setTextColor(255, 144, 0);
             doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
-            doc.text(showText, showBoxX + showBoxW / 2, textBaselineY, { align: "center" });
+            doc.text(showText, logoStartX + nightWidth + gap, logoY);
             
             // Tagline
             doc.setTextColor(160, 160, 160);
@@ -1025,7 +1014,6 @@
             doc.setFillColor(255, 200, 0);
             doc.circle(pageW / 2 + 15, pageH - 10, 1, 'F');
             
-            // Save with timestamp
             const ts = Date.now();
             doc.save('NightShow_Receipt_' + ts + '.pdf');
         }
