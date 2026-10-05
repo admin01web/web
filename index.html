@@ -840,7 +840,7 @@
         }
 
         // ============================================================
-        // ============ ATTRACTIVE PDF RECEIPT (PERFECT LOGO) ========
+        // ====== ATTRACTIVE PDF RECEIPT (REFERENCE IMAGE MATCH) =====
         // ============================================================
         function downloadPDFReceipt(totalAmount, transactionId, userId) {
             const { jsPDF } = window.jspdf;
@@ -848,7 +848,7 @@
             const pageW = doc.internal.pageSize.getWidth();
             const pageH = doc.internal.pageSize.getHeight();
             
-            // Dark background
+            // ---- DARK BACKGROUND ----
             doc.setFillColor(12, 10, 8);
             doc.rect(0, 0, pageW, pageH, 'F');
             
@@ -866,44 +866,52 @@
             doc.setFillColor(22, 17, 12);
             doc.circle(pageW / 2, 55, 35, 'F');
             
-            // ============ LOGO (Perfectly Centered) ============
+            // ============ LOGO (Perfectly Matching Reference) ============
             const nightText = "NIGHT";
             const showText = "SHOW";
-            const fontSize = 24;
-            const showBoxW = 52;
-            const showBoxH = 22;
-            const gap = 4;
+            const fontSize = 26;
+            const boxPadX = 9;    // Horizontal padding inside orange box (snug)
+            const boxPadY = 3;    // Vertical padding
+            const gap = 6;        // Gap between NIGHT and SHOW
             
-            doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
+            doc.setFontSize(fontSize);
+            
             const nightWidth = doc.getTextWidth(nightText);
+            const showTextWidth = doc.getTextWidth(showText);
+            const showBoxW = showTextWidth + (boxPadX * 2);
+            const showBoxH = fontSize + (boxPadY * 2) + 2;
+            
             const totalLogoW = nightWidth + gap + showBoxW;
             const logoStartX = (pageW - totalLogoW) / 2;
             const textBaselineY = 36;
-            const showBoxY = textBaselineY - 17;
+            const showBoxY = textBaselineY - showBoxH + 7;
             
-            // "NIGHT" white text
+            // Draw "NIGHT" (white)
             doc.setTextColor(255, 255, 255);
+            doc.setFontSize(fontSize);
+            doc.setFont("helvetica", "bold");
             doc.text(nightText, logoStartX, textBaselineY);
             
-            // "SHOW" orange rounded box
+            // Draw "SHOW" orange box
+            const showBoxX = logoStartX + nightWidth + gap;
             doc.setFillColor(255, 144, 0);
-            doc.roundedRect(logoStartX + nightWidth + gap, showBoxY, showBoxW, showBoxH, 5, 5, 'F');
+            doc.roundedRect(showBoxX, showBoxY, showBoxW, showBoxH, 5, 5, 'F');
             
-            // "SHOW" black text inside box
+            // Draw "SHOW" text (black) centered in box
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(fontSize);
             doc.setFont("helvetica", "bold");
-            doc.text(showText, logoStartX + nightWidth + gap + showBoxW / 2, textBaselineY, { align: "center" });
+            doc.text(showText, showBoxX + showBoxW / 2, textBaselineY, { align: "center" });
             
             // Tagline
             doc.setTextColor(160, 160, 160);
             doc.setFontSize(7.5);
             doc.setFont("helvetica", "normal");
-            doc.text("P  A  Y  M  E  N  T     R  E  C  E  I  P  T", pageW / 2, 48, { align: "center" });
+            doc.text("P  A  Y  M  E  N  T     R  E  C  E  I  P  T", pageW / 2, 50, { align: "center" });
             
-            // Success checkmark
-            const successY = 66;
+            // ---- SUCCESS CHECKMARK ----
+            const successY = 68;
             doc.setFillColor(0, 200, 100);
             doc.circle(pageW / 2, successY, 10, 'F');
             
@@ -917,7 +925,7 @@
             doc.setFont("helvetica", "bold");
             doc.text("PAYMENT SUCCESSFUL", pageW / 2, successY + 20, { align: "center" });
             
-            // Main border box
+            // ---- MAIN BORDER BOX ----
             const boxX = 15;
             const boxY = 100;
             const boxW = pageW - 30;
@@ -995,7 +1003,7 @@
                 yPos += rowH;
             });
             
-            // Footer
+            // ---- FOOTER ----
             doc.setDrawColor(255, 144, 0);
             doc.setLineWidth(0.5);
             doc.line(20, pageH - 40, pageW - 20, pageH - 40);
@@ -1017,6 +1025,7 @@
             doc.setFillColor(255, 200, 0);
             doc.circle(pageW / 2 + 15, pageH - 10, 1, 'F');
             
+            // Save with timestamp
             const ts = Date.now();
             doc.save('NightShow_Receipt_' + ts + '.pdf');
         }
